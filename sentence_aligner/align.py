@@ -29,7 +29,7 @@ def align_corpus(
     if not os.path.exists(output_file):
         os.system(f"touch {output_file}")
 
-    total_talks = int(subprocess.run(["wc", "-l", output_file], capture_output=True, text=True, check=True).stdout.split()[0])
+    total_talks = int(subprocess.run(["wc", "-l", input_file], capture_output=True, text=True, check=True).stdout.split()[0])
     no_talks = total_talks if no_talks is None else no_talks
 
     # read the output file to get the ids of talks already aligned
