@@ -25,7 +25,7 @@ class ExtractTranscriptsSpider(scrapy.Spider):
     allowed_domains = ["ted.com"]
     start_urls = ["https://ted.com/talks"]
 
-    def __init__(self, INPUT=None, OUTPUT='transcripts.json', LANGUAGES="en", MAX_RETRIES=10, MAX_TALKS=None):
+    def __init__(self, INPUT=None, OUTPUT=None, LANGUAGES="en", MAX_RETRIES=10, MAX_TALKS=None):
         super().__init__()
 
         self.languages = set(LANGUAGES.split(','))
@@ -52,18 +52,19 @@ class ExtractTranscriptsSpider(scrapy.Spider):
         self.max_retries = int(MAX_RETRIES)
         self.max_talks = int(MAX_TALKS) if MAX_TALKS else len(self.df)
 
-        if not os.path.exists(OUTPUT): # Create the output file if it does not exist
-            open(OUTPUT, 'w').close()
-
-
         self.finished_talks = {}
-        with open(OUTPUT, 'r+') as f:
-            for line in f:
-                data = json.loads(line)
-                if self.name_index:
-                    self.finished_talks[data['TALK-NAME']] = True
-                else:
-                    self.finished_talks[data['TALK-ID']] = True # To keep track of the finished talks
+
+        if OUTPUT:
+            if not os.path.exists(OUTPUT): # Create the output file if it does not exist
+                open(OUTPUT, 'w').close()
+
+            with open(OUTPUT, 'r+') as f:
+                for line in f:
+                    data = json.loads(line)
+                    if self.name_index:
+                        self.finished_talks[data['TALK-NAME']] = True
+                    else:
+                        self.finished_talks[data['TALK-ID']] = True # To keep track of the finished talks
 
         self.df.drop(index=self.finished_talks.keys(), inplace=True, errors='ignore') # Remove the finished talks from the dataframe
 
